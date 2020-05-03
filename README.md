@@ -7,26 +7,24 @@ Docker images that contain the excellent [pihole-cloudsync](https://github.com/s
 
 Currently, only **Primary/Secondary** and **All Secondary** modes are supported.  **Shared Hosts are not supported.**  If you set up DNS correctly, you shouldn't need it anyway.
 
-## Docker Hub
+## Docker Hub Images
 
-[Get subdavis/pihole-cloudsync on Docker Hub](https://hub.docker.com/r/subdavis/pihole-cloudsync).  Builds for amd64, arm64, and arm7 are available.
+**Important**: Because of [pihole/pihole-docker issue #587](https://github.com/pi-hole/docker-pi-hole/issues/587) some of the regular pihole/pihole docker images are broken.  You must use the correct tag for your architecture.
 
-**IMPORTANT MULTI-ARCHITECTURE NOTE:** To run this on your pi, Docker **might** choose the _wrong_ architecture when you run `docker run`.  You can specify the right arch by getting the SHA265 hash of the tag from docker hub.  This is not a problem with my images, it's a docker issue.  Click the hash of the architecture you need, then copy it's full SHA.
+These images are based on the respective arch builds of `pihole/pihole:master-{arch}`.  Others could be supported
 
-![Architecture List](docs/arch-list.png)
+* Pi 2 (armv6): `subdavis/pihole-cloudsync:armel`
+* Pi 3 (armv7): `subdavis/pihole-cloudsync:armhf`
+* Pi 4 (armv8): `subdavis/pihole-cloudsync:arm64`
+* Linux 64 bit: `subdavis/pihole-cloudsync:amd64`
 
-![Digest](docs/digest.png)
-
-``` bash
-# This is how you specify the hash of a specific image architecture
-docker run [...args] subdavis/pihole-cloudsync@sha256:50bfa5ac9662befc772da1503674c26e61c54296498b0769cdd14f16a2f05189
-```
+[Get subdavis/pihole-cloudsync on Docker Hub](https://hub.docker.com/r/subdavis/pihole-cloudsync).
 
 ## Setup
 
 This project forces security best practices.  You will need the following.
 
-1. A brand-new, empty github repo called `pihole-lists`.  Don't initialize it with a README or anything.
+1. A brand-new, empty github repo called `pihole-lists`.  Contents of this repo will overwrite pihole defaults, but missing files with be initialized by pihole.
 1. An SSH keypair, added to your git account.  **Username/Password auth is not supported**.
 
 ```bash
@@ -66,13 +64,17 @@ Primary Pi Hole pushes its configuration directly to a git repository any time i
 # Running this container will initialize the repo with the
 # contents of it's new or existing /etc/pihole config files
 docker run --rm -it --name pihole \
+  --publish "53:53/udp" \
+  --publish "53:53" \
+  --publish "67:67/udp" \
+  --publish "80:80" \
   --env GIT_SERVER="github.com" \
   --env GIT_REPO="changeme/pihole-lists" \
   --env GIT_USER="changeme" \
   --env GIT_EMAIL="changeme@domain.com" \
   --env CLOUDSYNC_TYPE="push" \
   --volume "/home/changeme/.ssh/pihole:/root/.ssh/id_rsa" \
-  subdavis/pihole-cloudsync
+  subdavis/pihole-cloudsync:changeme
 ```
 
 > **NOTE:**: if you want to have all secondary servers and no primary, run this once to populate your repository then edit your config files with a normal text exitor.
@@ -87,6 +89,10 @@ cron schedule defaults to "15 minutes past the hour every hour".  Visit [crontab
 # Start your secondary servers after you've initialized
 # your repo with the primary.
 docker run --rm -it --name pihole \
+  --publish "53:53/udp" \
+  --publish "53:53" \
+  --publish "67:67/udp" \
+  --publish "80:80" \
   --env GIT_SERVER="github.com" \
   --env GIT_REPO="changeme/pihole-lists" \
   --env GIT_USER="changeme" \
@@ -94,39 +100,5 @@ docker run --rm -it --name pihole \
   --env CLOUDSYNC_TYPE="pull" \
   --env CRON_SCHEDULE="15 * * * *" \
   --volume "/home/changeme/.ssh/pihole:/root/.ssh/id_rsa" \
-  subdavis/pihole-cloudsync
-```
-
-## Building the image
-
-If you don't want to use my pre-built image from Docker Hub, you can build it yourself.  If you want to build this off a different base image, you're on your own.
-
-```
-docker build -t subdavis/pihole-cloudsync .
-```
-
-To build this image for all platforms, I use `./multiarch-build.sh --push`
-
-## Extended Example
-
-Extended example with combined pihole and pihole-cloudsync args.
-
-``` bash
-docker run --rm -it --name pihole \
-  --env GIT_SERVER="github.com" \
-  --env GIT_REPO="changeme/pihole-lists" \
-  --env GIT_USER="changeme" \
-  --env GIT_EMAIL="changeme@domain.com" \
-  --env CLOUDSYNC_TYPE="push" \
-  --volume "/home/changeme/.ssh/pihole:/root/.ssh/id_rsa" \
-  --publish "53:53/udp" \
-  --publish "53:53/tcp" \
-  --publish "67:67/udp" \
-  --env TZ='America/New_York' \
-  --env DNSSEC=true \
-  --env WEB_PORT=8080 \
-  --volume "/pihole/etc-pihole/:/etc/pihole/" \
-  --volume "/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
-  --dns X.X.X.X \
-  subdavis/pihole-cloudsync
+  subdavis/pihole-cloudsync:changeme
 ```

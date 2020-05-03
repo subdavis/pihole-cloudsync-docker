@@ -1,4 +1,4 @@
-FROM docker.io/pihole/pihole:latest
+FROM docker.io/pihole/pihole:master-amd64
 
 RUN apt-get update && apt-get install ssh gettext-base -qy
 

@@ -1,0 +1,16 @@
+FROM docker.io/pihole/pihole:master-armhf
+
+RUN apt-get update && apt-get install ssh gettext-base -qy
+
+ENV GIT_SERVER="github.com"
+ENV CLOUDSYNC_TYPE="push"
+ENV CRON_SCHEDULE="15 * * * *"
+
+WORKDIR /usr/local/bin
+
+RUN git clone https://github.com/stevejenkins/pihole-cloudsync
+COPY entrypoint.sh /usr/local/bin/cloudsync-entrypoint.sh
+
+RUN mkdir $HOME/.ssh && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config
+
+ENTRYPOINT [ "/usr/local/bin/cloudsync-entrypoint.sh" ]
