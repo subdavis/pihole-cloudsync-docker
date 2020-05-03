@@ -7,6 +7,10 @@ Docker images that contain the excellent [pihole-cloudsync](https://github.com/s
 
 Currently, only **Primary/Secondary** and **All Secondary** modes are supported.  **Shared Hosts are not supported.**  If you set up DNS correctly, you shouldn't need it anyway.
 
+## Docker Hub
+
+[Get subdavis/pihole-cloudsync on Docker Hub](https://hub.docker.com/r/subdavis/pihole-cloudsync).  Builds for amd64, arm64, and arm7 are available.
+
 ## Setup
 
 This project forces security best practices.  You will need the following.
@@ -90,6 +94,8 @@ If you don't want to use my pre-built image from Docker Hub, you can build it yo
 docker build -t subdavis/pihole-cloudsync .
 ```
 
+To build this image for all platforms, I use `./multiarch-build.sh --push`
+
 ## Extended Example
 
 Extended example with combined pihole and pihole-cloudsync args.
@@ -112,3 +118,4 @@ docker run --rm -it --name pihole \
   --volume "/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
   --dns X.X.X.X \
   subdavis/pihole-cloudsync
+```
