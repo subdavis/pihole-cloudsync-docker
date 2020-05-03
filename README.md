@@ -11,6 +11,17 @@ Currently, only **Primary/Secondary** and **All Secondary** modes are supported.
 
 [Get subdavis/pihole-cloudsync on Docker Hub](https://hub.docker.com/r/subdavis/pihole-cloudsync).  Builds for amd64, arm64, and arm7 are available.
 
+**IMPORTANT MULTI-ARCHITECTURE NOTE:** To run this on your pi, Docker **might** choose the _wrong_ architecture when you run `docker run`.  You can specify the right arch by getting the SHA265 hash of the tag from docker hub.  This is not a problem with my images, it's a docker issue.  Click the hash of the architecture you need, then copy it's full SHA.
+
+![Architecture List](docs/arch-list.png)
+
+![Digest](docs/digest.png)
+
+``` bash
+# This is how you specify the hash of a specific image architecture
+docker run [...args] subdavis/pihole-cloudsync@sha256:50bfa5ac9662befc772da1503674c26e61c54296498b0769cdd14f16a2f05189
+```
+
 ## Setup
 
 This project forces security best practices.  You will need the following.
