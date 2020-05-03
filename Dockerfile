@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install ssh gettext-base -qy
 
 ENV GIT_SERVER="github.com"
 ENV CLOUDSYNC_TYPE="push"
-ENV PULL_INTERVAL="1h"
+ENV CRON_SCHEDULE="15 * * * *"
 
 WORKDIR /usr/local/bin
 
